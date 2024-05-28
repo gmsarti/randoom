@@ -2,6 +2,7 @@ from pathlib import Path
 from random import choice
 from typing import Optional
 
+from create_npc import create_npc
 from pydantic import BaseModel
 from utils.load_data import load_data
 
@@ -15,13 +16,13 @@ class WildPlace(BaseModel):
 
     wild_places_data: dict = load_data(wild_places_path)
 
-    region: str = choice(wild_places_data["wilderness_region"])
-    trait: str = choice(wild_places_data["wilderness_region_traits"])
-    landmark: Optional[str] = choice(wild_places_data["wilderness_landmarks"])
-    structure: Optional[str] = choice(wild_places_data["wilderness_structures"])
-    discoveries: Optional[str] = choice(wild_places_data["wilderness_discoveries"])
-    activities: Optional[str] = choice(wild_places_data["wilderness_activities"])
-    hazards: Optional[str] = choice(wild_places_data["wilderness_hazards"])
+    region: str
+    trait: str
+    landmark: str
+    structure: str
+    discoveries: str
+    activities: str
+    hazards: str
 
     def __str__(self):
         return f"""
@@ -32,58 +33,30 @@ class WildPlace(BaseModel):
                 """
 
 
-class WildNPC(BaseModel):
-    """Represents a person in the wilderness."""
+def create_wild_place(**kwargs):
+    wild_places_data: dict = load_data(wild_places_path)
 
-    sex: str
-    age: str
-    job: str
-    goal: str
-    asset: str
-    mission: str
-    misfortune: str
-    liability: str
+    region: str = choice(wild_places_data["wilderness_region"])
+    trait: str = choice(wild_places_data["wilderness_region_traits"])
+    landmark: Optional[str] = choice(wild_places_data["wilderness_landmarks"])
+    structure: Optional[str] = choice(wild_places_data["wilderness_structures"])
+    discoveries: Optional[str] = choice(wild_places_data["wilderness_discoveries"])
+    activities: Optional[str] = choice(wild_places_data["wilderness_activities"])
+    hazards: Optional[str] = choice(wild_places_data["wilderness_hazards"])
 
-    def __str__(self):
-        return f"""
-                A {self.age} {self.sex}  {self.job} with the asset: {self.asset}.
-                Has the goal of {self.goal} and offer a mission related to {self.mission}.
-                Has the missfortune {self.misfortune} and the liability {self.liability}
-                """
+    # Overwrite defaults with provided keyword arguments
+    data = {**locals(), **kwargs}  # Combine local variables and kwargs
+
+    return WildPlace(**data)
 
 
-def create_npc():
-    wild_npc_data: dict = load_data(npcs_path)
-
-    sex = choice(wild_npc_data["npc_sex"])
-    age = choice(wild_npc_data["npc_age"])
-    job = choice(wild_npc_data["npc_wilderness"])
-    goal = choice(wild_npc_data["npc_goals"])
-    asset = choice(wild_npc_data["npc_assets"])
-    mission = choice(wild_npc_data["npc_misfortunes"])
-    misfortune = choice(wild_npc_data["npc_missions"])
-    liability = choice(wild_npc_data["npc_liabilities"])
-
-    return WildNPC(
-        sex=sex,
-        age=age,
-        job=job,
-        goal=goal,
-        asset=asset,
-        mission=mission,
-        misfortune=misfortune,
-        liability=liability,
-    )
-
-
-def generate_npc(random_seed=None):
-    return WildNPC(random_seed=random_seed)
+def random_wilderness_npc():
+    return create_npc(region="npc_wilderness")
 
 
 if __name__ == "__main__":
-    place = WildPlace()
-    print(f"Place:\n{place}\n")
-    print("PEOPLE OF INTEREST:")
-    for i in range(4):
-        new_npc = create_npc()
-        print(f"PERSON {i}:\n{new_npc}\n")
+    place = create_wild_place()
+    print(place)
+    print(" ")
+    npc = random_wilderness_npc()
+    print(npc)
